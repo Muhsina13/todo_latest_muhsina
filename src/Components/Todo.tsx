@@ -1,15 +1,12 @@
-import React from "react";
-import { useState } from "react";
-import {  NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+
 const Todo = () => {
-  
   const [todo, setTodo] = useState<string>("");
+  const [todos, setTodos] = useState<{ text: string; completed: boolean }[]>([]);
+  const [completedTodos, setCompletedTodos] = useState<number>(0); // Completed todos count
+  const [totalTodos, setTotalTodos] = useState<number>(0); // Total todos count, doesn't change when todos are deleted
 
-  const [todos, setTodos] = useState<{ text: string; completed: boolean }[]>(
-    []
-  );
-
-  
   const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTodo(e.target.value);
   };
@@ -18,8 +15,9 @@ const Todo = () => {
     if (todo.trim()) {
       setTodos([...todos, { text: todo, completed: false }]);
       setTodo("");
-    }
-  };
+      setTotalTodos((prevTotal) => prevTotal + 1); // Increment the total todos count
+    } 
+};
 
   const deleteTodo = (index: number) => {
     setTodos(todos.filter((_, todoIndex) => todoIndex !== index));
@@ -27,17 +25,16 @@ const Todo = () => {
 
   const completeTodo = (index: number) => {
     const updatedTodos = [...todos];
-    updatedTodos[index].completed = true; 
-    setTodos(updatedTodos);
+    if (!updatedTodos[index].completed) {
+      updatedTodos[index].completed = true;
 
-   
+      // Update completed todos count
+      setCompletedTodos((prevCount) => prevCount + 1);
 
-
-    
-    
+      // Remove the todo from the list
+      setTodos(todos.filter((_, todoIndex) => todoIndex !== index));
+    }
   };
-
-  const completedTodos = todos.filter((todo) => todo.completed).length;
 
   return (
     <>
@@ -45,13 +42,12 @@ const Todo = () => {
         <div className="absolute top-0 left-0 right-0 bg-gray-200 p-4 bg-opacity-50 ">
           <div className="flex justify-end">
             <p className="text-black font-bold">
-              {completedTodos} / {todos.length} todos completed
+              {completedTodos} / {totalTodos} todos completed
             </p>
           </div>
         </div>
 
         {/* Left side for completed todos */}
-
         <div className="w-2/3 bg-white p-4 rounded-lg shadow-md mr-1 mt-10 ">
           <ul>
             {todos
@@ -64,8 +60,6 @@ const Todo = () => {
                   <span>{todo.text}</span>
                   <div>
                     <button
-
-
                       onClick={() => completeTodo(index)}
                       className="text-green-500 font-bold "
                     >
@@ -75,7 +69,7 @@ const Todo = () => {
                         viewBox="0 0 24 24"
                         stroke-width="1.5"
                         stroke="currentColor"
-                        className="size-6"
+                        className="size-5 text-bold"
                       >
                         <path
                           stroke-linecap="round"
@@ -91,8 +85,6 @@ const Todo = () => {
                     >
                       X
                     </button>
-
-                   
                   </div>
                 </li>
               ))}
@@ -118,7 +110,11 @@ const Todo = () => {
               Add to list
             </button>
 
-            <div className="mt-auto  flex-col space-y-8 ">
+            
+          </div>
+
+          <div className=" mt-[300px]">
+          <div className="mt-auto  flex-col space-y-8 ">
               <NavLink to="/Login">
                 <button className="   w-full p-2 bg-gray-600 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400">
                   Log in
@@ -126,10 +122,11 @@ const Todo = () => {
               </NavLink>
             </div>
 
-            <button className="w-full p-2 bg-gray-600 text-white rounded-lg hover:bg-brown-600 focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <button className="mt-5 w-full p-2 bg-gray-600 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400">
               Register
             </button>
-          </div>
+
+            </div>
         </div>
       </div>
     </>
